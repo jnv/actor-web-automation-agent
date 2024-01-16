@@ -3,12 +3,13 @@
     "type": "object",
     "schemaVersion": 1,
     "properties": {
-        "startUrl": {
-            "title": "Start URL",
-            "type": "string",
-            "description": "URL to start with automation, if not filled you need to specify it in instructions.",
-            "editor": "textfield",
-            "prefill": "https://apify.com"
+        "startUrls": {
+            "sectionCaption": "Basic configuration",
+            "title": "Start URLs",
+            "type": "array",
+            "description": "A static list of URLs to scrape.",
+            "prefill": [{ "url": "https://crawlee.dev" }],
+            "editor": "requestListSources"
         },
         "instructions": {
             "title": "Instructions for the Web Agent",
