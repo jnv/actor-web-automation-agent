@@ -2,7 +2,10 @@ import { Actor } from 'apify';
 import { utils, sleep } from 'crawlee';
 import { ElementHandle, type Page } from 'puppeteer';
 import { z } from 'zod';
-import { shrinkHtmlForWebAutomation, tagAllElementsOnPage } from './shrink_html.js';
+import {
+    shrinkHtmlForWebAutomation,
+    tagAllElementsOnPage,
+} from './shrink_html.js';
 import { HTML_CURRENT_PAGE_PREFIX, UNIQUE_ID_ATTRIBUTE } from './consts.js';
 import { maybeShortsTextByTokenLength } from './tokens.js';
 import { webAgentLog, keyValueArrayToObject } from './utils.js';
@@ -22,7 +25,10 @@ export async function waitForNavigation(page: Page) {
     }
 }
 
-export async function goToUrl(context: AgentBrowserContext, { url }: { url: string }) {
+export async function goToUrl(
+    context: AgentBrowserContext,
+    { url }: { url: string },
+) {
     webAgentLog.info('Calling go to page', { url });
     const { page } = context;
     await page.goto(url);
@@ -30,8 +36,14 @@ export async function goToUrl(context: AgentBrowserContext, { url }: { url: stri
     await utils.puppeteer.closeCookieModals(page);
     await tagAllElementsOnPage(page, UNIQUE_ID_ATTRIBUTE);
     const minHtml = await shrinkHtmlForWebAutomation(page);
-    webAgentLog.info(`Went to page, current URL: ${page.url()}`, { url, htmlLength: minHtml.length });
-    return maybeShortsTextByTokenLength(`Previous action was: go_to_url, ${HTML_CURRENT_PAGE_PREFIX} ${minHtml}`, 10000);
+    webAgentLog.info(`Went to page, current URL: ${page.url()}`, {
+        url,
+        htmlLength: minHtml.length,
+    });
+    return maybeShortsTextByTokenLength(
+        `Previous action was: go_to_url, ${HTML_CURRENT_PAGE_PREFIX} ${minHtml}`,
+        10000,
+    );
 }
 
 export async function betterClick(page: Page, element: ElementHandle) {
@@ -48,7 +60,10 @@ export async function betterClick(page: Page, element: ElementHandle) {
     }
 }
 
-export async function clickElement(context: AgentBrowserContext, { text, gid, tagName }: { text: string, gid: number, tagName?: string }) {
+export async function clickElement(
+    context: AgentBrowserContext,
+    { text, gid, tagName }: { text: string; gid: number; tagName?: string },
+) {
     tagName = tagName || 'a';
     webAgentLog.info('Calling clicking on link', { text, gid, tagName });
     const { page } = context;
@@ -84,7 +99,9 @@ export async function clickElement(context: AgentBrowserContext, { text, gid, ta
 
     if (!elementFoundAndClicked) {
         // TODO: Handle this error
-        webAgentLog.error(`Cannot find link with text ${text} or gid ${gid} on ${page.url()}`);
+        webAgentLog.error(
+            `Cannot find link with text ${text} or gid ${gid} on ${page.url()}`,
+        );
         throw new Error('Element not found');
     }
 
@@ -94,7 +111,9 @@ export async function clickElement(context: AgentBrowserContext, { text, gid, ta
     if (newTabsPages.length) {
         const lastPage = newTabsPages[newTabsPages.length - 1];
         const lastPageUrl = lastPage.url();
-        webAgentLog.info('New tab was opened, switching to it.', { newPageUrl: lastPageUrl });
+        webAgentLog.info('New tab was opened, switching to it.', {
+            newPageUrl: lastPageUrl,
+        });
         await page.bringToFront(); // Switch to the main page.
         await page.goto(lastPageUrl);
         try {
@@ -109,11 +128,22 @@ export async function clickElement(context: AgentBrowserContext, { text, gid, ta
     await tagAllElementsOnPage(page, UNIQUE_ID_ATTRIBUTE);
     const minHtml = await shrinkHtmlForWebAutomation(page);
 
-    webAgentLog.info(`Clicked on link, current URL: ${page.url()}`, { text, gid, linkFoundByGidSelector, htmlLength: minHtml.length });
-    return maybeShortsTextByTokenLength(`Previous action was: click_element, ${HTML_CURRENT_PAGE_PREFIX} ${minHtml}`, 10000);
+    webAgentLog.info(`Clicked on link, current URL: ${page.url()}`, {
+        text,
+        gid,
+        linkFoundByGidSelector,
+        htmlLength: minHtml.length,
+    });
+    return maybeShortsTextByTokenLength(
+        `Previous action was: click_element, ${HTML_CURRENT_PAGE_PREFIX} ${minHtml}`,
+        10000,
+    );
 }
 
-export async function fillForm(context: AgentBrowserContext, { formData }: { formData: { gid: number, value: string }[]}) {
+export async function fillForm(
+    context: AgentBrowserContext,
+    { formData }: { formData: { gid: number; value: string }[] },
+) {
     webAgentLog.info('Calling filling form', { formData });
     const { page } = context;
     for (const { gid, value } of formData) {
@@ -134,12 +164,24 @@ export async function fillForm(context: AgentBrowserContext, { formData }: { for
     await utils.puppeteer.closeCookieModals(page);
     await tagAllElementsOnPage(page, UNIQUE_ID_ATTRIBUTE);
     const minHtml = await shrinkHtmlForWebAutomation(page);
-    webAgentLog.info(`Form submitted, current URL: ${page.url()}`, { htmlLength: minHtml.length });
-    return maybeShortsTextByTokenLength(`Previous action was: fill_form_and_submit, ${HTML_CURRENT_PAGE_PREFIX} ${minHtml}`, 10000);
+    webAgentLog.info(`Form submitted, current URL: ${page.url()}`, {
+        htmlLength: minHtml.length,
+    });
+    return maybeShortsTextByTokenLength(
+        `Previous action was: fill_form_and_submit, ${HTML_CURRENT_PAGE_PREFIX} ${minHtml}`,
+        10000,
+    );
 }
 
-export async function extractData(context: AgentBrowserContext, { attributesToExtract }: { attributesToExtract: { gid: number, keyName: string }[] }) {
-    webAgentLog.info('Calling extracting data from page', { attributesToExtract });
+export async function extractData(
+    context: AgentBrowserContext,
+    {
+        attributesToExtract,
+    }: { attributesToExtract: { gid: number; keyName: string }[] },
+) {
+    webAgentLog.info('Calling extracting data from page', {
+        attributesToExtract,
+    });
     const { page } = context;
     const extractedData: Record<string, string | null> = {};
     for (const { gid, keyName } of attributesToExtract) {
@@ -153,7 +195,10 @@ export async function extractData(context: AgentBrowserContext, { attributesToEx
     return `Extracted JSON data from page: ${JSON.stringify(extractedData)}`;
 }
 
-export async function pushToDataset(_: AgentBrowserContext, { objects }: { objects: any[] }) {
+export async function pushToDataset(
+    _: AgentBrowserContext,
+    { objects }: { objects: any[] },
+) {
     webAgentLog.info('Calling push to dataset', { objects });
     // NOTE: For some reason passing the object directly to as function param did not work.
     const items: any[] = [];
@@ -166,7 +211,10 @@ export async function pushToDataset(_: AgentBrowserContext, { objects }: { objec
     return 'Pushed to dataset.';
 }
 
-export async function saveOutput(_: AgentBrowserContext, { object }: { object: { key: string, value: string }[] }) {
+export async function saveOutput(
+    _: AgentBrowserContext,
+    { object }: { object: { key: string; value: string }[] },
+) {
     webAgentLog.info('Calling save output', { object });
     // NOTE: For some reason passing the object directly to as function param did not work.
     const data = keyValueArrayToObject(object);
@@ -175,16 +223,25 @@ export async function saveOutput(_: AgentBrowserContext, { object }: { object: {
     return 'Output saved';
 }
 
-export async function captureAndSaveScreenshot(context: AgentBrowserContext, { filename, saveHtml }: { filename?: string, saveHtml?: boolean }) {
-    webAgentLog.info('Calling capture and save screenshot', { filename, saveHtml });
+export async function captureAndSaveScreenshot(
+    context: AgentBrowserContext,
+    { filename, saveHtml }: { filename?: string; saveHtml?: boolean },
+) {
+    webAgentLog.info('Calling capture and save screenshot', {
+        filename,
+        saveHtml,
+    });
     const { page } = context;
     const key = filename || 'screenshot';
     const kvs = await Actor.openKeyValueStore();
     await utils.puppeteer.saveSnapshot(page, { key, saveHtml });
-    webAgentLog.info(`Screenshot saved, you can check it ${kvs.getPublicUrl(key)}.jpeg .`, {
-        screenshotUrl: `${kvs.getPublicUrl(key)}.jpg`,
-        htmlUrl: saveHtml && `${kvs.getPublicUrl(key)}.html`,
-    });
+    webAgentLog.info(
+        `Screenshot saved, you can check it ${kvs.getPublicUrl(key)}.jpeg .`,
+        {
+            screenshotUrl: `${kvs.getPublicUrl(key)}.jpg`,
+            htmlUrl: saveHtml && `${kvs.getPublicUrl(key)}.html`,
+        },
+    );
     return 'Screenshot saved';
 }
 
@@ -197,20 +254,32 @@ export const ACTIONS = {
         name: 'go_to_url',
         description: 'Goes to a specific URL and gets the content',
         parameters: z.object({
-            url: z.string().url().describe('The valid URL to go to (including protocol)'),
+            url: z
+                .string()
+                .url()
+                .describe('The valid URL to go to (including protocol)'),
         }),
         required: ['url'],
         action: goToUrl,
     },
     CLICK_ELEMENT: {
         name: 'click_element',
-        description: 'Clicks on a element with the given gid on the page. Note that gid is required and'
-            + ' you must use the corresponding gid attribute from the page content. '
-            + 'Add the text of the link to confirm that you are clicking the right link.',
+        description:
+            'Clicks on a element with the given gid on the page. Note that gid is required and' +
+            ' you must use the corresponding gid attribute from the page content. ' +
+            'Add the text of the link to confirm that you are clicking the right link.',
         parameters: z.object({
-            tagName: z.string().describe('The tag name of the element to click'),
-            text: z.string().describe('The text on the element you want to click'),
-            gid: z.number().describe('The gid of the element to click (from the page content)'),
+            tagName: z
+                .string()
+                .describe('The tag name of the element to click'),
+            text: z
+                .string()
+                .describe('The text on the element you want to click'),
+            gid: z
+                .number()
+                .describe(
+                    'The gid of the element to click (from the page content)',
+                ),
         }),
         required: ['text', 'gid'],
         action: clickElement,
@@ -219,10 +288,21 @@ export const ACTIONS = {
         name: 'fill_form_and_submit',
         description: 'Types value to input fields and submit the form.',
         parameters: z.object({
-            formData: z.array(z.object({
-                gid: z.number().int().describe('The gid HTML attribute from the content to fill'),
-                value: z.string().describe('The value to fill to the input field'),
-            })).describe('The list of form data to fill'),
+            formData: z
+                .array(
+                    z.object({
+                        gid: z
+                            .number()
+                            .int()
+                            .describe(
+                                'The gid HTML attribute from the content to fill',
+                            ),
+                        value: z
+                            .string()
+                            .describe('The value to fill to the input field'),
+                    }),
+                )
+                .describe('The list of form data to fill'),
         }),
         action: fillForm,
     },
@@ -244,10 +324,20 @@ export const ACTIONS = {
         name: 'save_object_to_output',
         description: 'Saves the output in the key-value store',
         parameters: z.object({
-            object: z.array(z.object({
-                key: z.string().describe('Key of the object to save to output'),
-                value: z.string().describe('The value of the object to save to output'),
-            })).describe('The key value pair of object to save to output'),
+            object: z
+                .array(
+                    z.object({
+                        key: z
+                            .string()
+                            .describe('Key of the object to save to output'),
+                        value: z
+                            .string()
+                            .describe(
+                                'The value of the object to save to output',
+                            ),
+                    }),
+                )
+                .describe('The key value pair of object to save to output'),
         }),
         action: saveOutput,
     },
@@ -255,24 +345,40 @@ export const ACTIONS = {
         name: 'save_objects_to_dataset',
         description: 'Saves one or multiple object to the dataset',
         parameters: z.object({
-            objects: z.array(
-                z.array(z.object({
-                    key: z.string().describe('Key of the object to save to dataset'),
-                    value: z.string().describe('The value of the object to save to dataset'),
-                })).describe('The key value pair of object to save to dataset'),
-            ).describe('The list of objects to save to dataset'),
+            objects: z
+                .array(
+                    z
+                        .array(
+                            z.object({
+                                key: z
+                                    .string()
+                                    .describe(
+                                        'Key of the object to save to dataset',
+                                    ),
+                                value: z
+                                    .string()
+                                    .describe(
+                                        'The value of the object to save to dataset',
+                                    ),
+                            }),
+                        )
+                        .describe(
+                            'The key value pair of object to save to dataset',
+                        ),
+                )
+                .describe('The list of objects to save to dataset'),
         }),
         action: pushToDataset,
     },
-    CAPTURE_AND_SAVE_SCREENSHOT: {
-        name: 'capture_and_save_screenshot',
-        description: 'Captures and saves a screenshot of the current page',
-        parameters: z.object({
-            filename: z.string().optional().describe('The filename of the screenshot without extension'),
-            saveHtml: z.boolean().optional().describe('Whether to save the HTML of the page'),
-        }),
-        action: captureAndSaveScreenshot,
-    },
+    // CAPTURE_AND_SAVE_SCREENSHOT: {
+    //     name: 'capture_and_save_screenshot',
+    //     description: 'Captures and saves a screenshot of the current page',
+    //     parameters: z.object({
+    //         filename: z.string().optional().describe('The filename of the screenshot without extension'),
+    //         saveHtml: z.boolean().optional().describe('Whether to save the HTML of the page'),
+    //     }),
+    //     action: captureAndSaveScreenshot,
+    // },
 };
 
 export const ACTION_LIST = Object.values(ACTIONS);
