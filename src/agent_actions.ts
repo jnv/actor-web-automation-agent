@@ -12,6 +12,8 @@ import { webAgentLog, keyValueArrayToObject } from './utils.js';
 
 interface AgentBrowserContext {
     page: Page;
+    storeHtml: boolean;
+    startUrl: string;
 }
 
 export async function waitForNavigation(page: Page) {
@@ -196,9 +198,10 @@ export async function extractData(
 }
 
 export async function pushToDataset(
-    _: AgentBrowserContext,
+    context: AgentBrowserContext,
     { objects }: { objects: any[] },
 ) {
+    const { page, storeHtml, startUrl } = context;
     webAgentLog.info('Calling push to dataset', { objects });
     // NOTE: For some reason passing the object directly to as function param did not work.
     const items: any[] = [];
@@ -206,8 +209,18 @@ export async function pushToDataset(
         const item = keyValueArrayToObject(object);
         items.push(item);
     });
-    await Actor.pushData(items);
-    webAgentLog.info('Pushed to dataset!', { items });
+    let pageHtml;
+    if (storeHtml) {
+        pageHtml = await shrinkHtmlForWebAutomation(page);
+    }
+    const datasetEntry = {
+        '#html': pageHtml,
+        startUrl,
+        url: page.url(),
+        result: items,
+    };
+    await Actor.pushData(datasetEntry);
+    webAgentLog.info('Pushed to dataset!', { datasetEntry });
     return 'Pushed to dataset.';
 }
 

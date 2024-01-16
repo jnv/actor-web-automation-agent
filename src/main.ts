@@ -22,6 +22,7 @@ const {
     openaiApiKey,
     model = 'gpt-3.5-turbo-16k',
     maxIterations = 5,
+    storeHtml = false,
 } = (await Actor.getInput()) as Input;
 
 if (!process.env.OPENAI_API_KEY && !openaiApiKey) {
@@ -91,7 +92,7 @@ async function runPerUrl(startUrl: string) {
             schema: action.parameters,
             func: async (args) => {
                 // @ts-ignore
-                return action.action({ page }, args);
+                return action.action({ page, storeHtml, startUrl }, args);
             },
         });
     });

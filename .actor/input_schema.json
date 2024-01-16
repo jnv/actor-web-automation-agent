@@ -59,6 +59,13 @@
             "minimum": 1,
             "nullable": true
         },
+        "storeHtml": {
+            "title": "Store HTML in dataset",
+            "type": "boolean",
+            "description": "Whether to store HTML with each dataset entry.",
+            "default": false,
+            "editor": "checkbox"
+        },
         "proxyConfiguration": {
             "sectionCaption": "Proxy configuration",
             "title": "Proxy configuration",
