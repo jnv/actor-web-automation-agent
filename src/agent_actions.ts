@@ -204,10 +204,10 @@ export async function pushToDataset(
     const { page, storeHtml, startUrl } = context;
     webAgentLog.info('Calling push to dataset', { objects });
     // NOTE: For some reason passing the object directly to as function param did not work.
-    const items: any[] = [];
+    const result: any[] = [];
     objects.forEach((object) => {
         const item = keyValueArrayToObject(object);
-        items.push(item);
+        result.push(item);
     });
 
     let shrunkHtml;
@@ -221,10 +221,10 @@ export async function pushToDataset(
         '#shrunkHtml': shrunkHtml,
         startUrl,
         url: page.url(),
-        result: items,
+        result,
     };
     await Actor.pushData(datasetEntry);
-    webAgentLog.info('Pushed to dataset!', { datasetEntry });
+    webAgentLog.info('Pushed to dataset!', { result });
     return 'Pushed to dataset.';
 }
 
