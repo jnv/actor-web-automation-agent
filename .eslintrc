@@ -3,22 +3,17 @@
     "env": {
         "browser": true,
         "es2020": true,
-        "node": true
+        "node": true,
     },
-    "extends": [
-        "@apify/eslint-config-ts"
-    ],
+    "extends": ["@apify/eslint-config-ts"],
     "rules": {
         "@typescript-eslint/ban-ts-comment": "warn",
-        "max-classes-per-file": "warn"
+        "max-classes-per-file": "warn",
+        "operator-linebreak": "off",
     },
     "parserOptions": {
         "project": "./tsconfig.json",
-        "ecmaVersion": 2020
+        "ecmaVersion": 2020,
     },
-    "ignorePatterns": [
-        "node_modules",
-        "dist",
-        "**/*.d.ts"
-    ]
+    "ignorePatterns": ["node_modules", "dist", "**/*.d.ts"],
 }
