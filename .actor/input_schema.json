@@ -1,5 +1,6 @@
 {
     "title": "Web Automation Agent",
+    "description": "This is actor input schema",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
@@ -8,7 +9,11 @@
             "title": "Start URLs",
             "type": "array",
             "description": "A static list of URLs to scrape.",
-            "prefill": [{ "url": "https://crawlee.dev" }],
+            "prefill": [
+                {
+                    "url": "https://crawlee.dev"
+                }
+            ],
             "editor": "requestListSources"
         },
         "instructions": {
@@ -32,16 +37,39 @@
             "editor": "select",
             "default": "gpt-3.5-turbo-16k",
             "prefill": "gpt-3.5-turbo-16k",
-            "enum": ["gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k", "gpt-4-1106-preview"],
-            "enumTitles": ["GPT-3.5 Turbo 16k", "GPT-4", "GPT-4 32k", "GPT-4 106k"]
+            "enum": [
+                "gpt-3.5-turbo-16k",
+                "gpt-4",
+                "gpt-4-32k",
+                "gpt-4-1106-preview"
+            ],
+            "enumTitles": [
+                "GPT-3.5 Turbo 16k",
+                "GPT-4",
+                "GPT-4 32k",
+                "GPT-4 106k"
+            ]
+        },
+        "maxIterations": {
+            "title": "Maximum iterations",
+            "type": "integer",
+            "description": "How many steps the agent can take per each Start URL provided.",
+            "default": 5,
+            "editor": "number",
+            "minimum": 1,
+            "nullable": true
         },
         "proxyConfiguration": {
             "sectionCaption": "Proxy configuration",
             "title": "Proxy configuration",
             "type": "object",
             "description": "Specifies proxy servers that will be used by the scraper in order to hide its origin.<br><br>For details, see <a href='https://apify.com/drobnikj/gpt-scraper#proxy-configuration' target='_blank' rel='noopener'>Proxy configuration</a> in README.",
-            "prefill": { "useApifyProxy": true },
-            "default": { "useApifyProxy": false },
+            "prefill": {
+                "useApifyProxy": true
+            },
+            "default": {
+                "useApifyProxy": false
+            },
             "editor": "proxy"
         }
     },

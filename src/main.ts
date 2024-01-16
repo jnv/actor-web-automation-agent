@@ -21,6 +21,7 @@ const {
     proxyConfiguration,
     openaiApiKey,
     model = 'gpt-3.5-turbo-16k',
+    maxIterations = 5,
 } = (await Actor.getInput()) as Input;
 
 if (!process.env.OPENAI_API_KEY && !openaiApiKey) {
@@ -96,6 +97,7 @@ async function runPerUrl(startUrl: string) {
     });
 
     const executor = WebAgentExecutor.fromAgentAndTools({
+        maxIterations,
         tags: ['openai-functions'],
         agent: OpenAIAgent.fromLLMAndTools(llm, tools, {
             prefix: initialContext.content,

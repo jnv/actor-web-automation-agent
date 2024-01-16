@@ -8,7 +8,11 @@ import {
 import { OutputParserException } from 'langchain/schema/output_parser';
 import { Tool } from 'langchain/tools';
 import { BaseChain } from 'langchain/chains';
-import { BaseSingleActionAgent, StoppingMethod, AgentExecutorInput } from 'langchain/agents';
+import {
+    BaseSingleActionAgent,
+    StoppingMethod,
+    AgentExecutorInput,
+} from 'langchain/agents';
 import { CallbackManagerForChainRun } from 'langchain/callbacks';
 
 export class ToolInputParsingException extends Error {
@@ -65,7 +69,7 @@ export class WebAgentExecutor extends BaseChain {
 
     returnIntermediateSteps = false;
 
-    maxIterations?: number = 15;
+    maxIterations?: number = 5;
 
     earlyStoppingMethod: StoppingMethod = 'force';
 
@@ -84,7 +88,8 @@ export class WebAgentExecutor extends BaseChain {
     handleParsingErrors:
         | boolean
         | string
-        | ((e: OutputParserException | ToolInputParsingException) => string) = false;
+        | ((e: OutputParserException | ToolInputParsingException) => string) =
+        false;
 
     get inputKeys() {
         return this.agent.inputKeys;
@@ -98,7 +103,8 @@ export class WebAgentExecutor extends BaseChain {
         super(input);
         this.agent = input.agent;
         this.tools = input.tools;
-        this.handleParsingErrors = input.handleParsingErrors ?? this.handleParsingErrors;
+        this.handleParsingErrors =
+            input.handleParsingErrors ?? this.handleParsingErrors;
         // eslint-disable-next-line no-underscore-dangle
         if (this.agent._agentActionType() === 'multi') {
             for (const tool of this.tools) {
@@ -109,9 +115,11 @@ export class WebAgentExecutor extends BaseChain {
                 }
             }
         }
-        this.returnIntermediateSteps = input.returnIntermediateSteps ?? this.returnIntermediateSteps;
+        this.returnIntermediateSteps =
+            input.returnIntermediateSteps ?? this.returnIntermediateSteps;
         this.maxIterations = input.maxIterations ?? this.maxIterations;
-        this.earlyStoppingMethod = input.earlyStoppingMethod ?? this.earlyStoppingMethod;
+        this.earlyStoppingMethod =
+            input.earlyStoppingMethod ?? this.earlyStoppingMethod;
         this.updatePreviousStepMethod = input.updatePreviousStepMethod;
     }
 
@@ -127,7 +135,9 @@ export class WebAgentExecutor extends BaseChain {
      * @returns A boolean indicating whether the agent execution should continue.
      */
     private shouldContinue(iterations: number): boolean {
-        return this.maxIterations === undefined || iterations < this.maxIterations;
+        return (
+            this.maxIterations === undefined || iterations < this.maxIterations
+        );
     }
 
     /** @ignore */
@@ -143,10 +153,17 @@ export class WebAgentExecutor extends BaseChain {
 
         const getOutput = async (finishStep: AgentFinish) => {
             const { returnValues } = finishStep;
-            const additional = await this.agent.prepareForOutput(returnValues, steps);
+            const additional = await this.agent.prepareForOutput(
+                returnValues,
+                steps,
+            );
 
             if (this.returnIntermediateSteps) {
-                return { ...returnValues, intermediateSteps: steps, ...additional };
+                return {
+                    ...returnValues,
+                    intermediateSteps: steps,
+                    ...additional,
+                };
             }
             await runManager?.handleAgentEnd(finishStep);
             return { ...returnValues, ...additional };
@@ -155,7 +172,11 @@ export class WebAgentExecutor extends BaseChain {
         while (this.shouldContinue(iterations)) {
             let output;
             try {
-                output = await this.agent.plan(steps, inputs, runManager?.getChild());
+                output = await this.agent.plan(
+                    steps,
+                    inputs,
+                    runManager?.getChild(),
+                );
             } catch (e) {
                 if (e instanceof OutputParserException) {
                     let observation;
@@ -192,21 +213,30 @@ export class WebAgentExecutor extends BaseChain {
             const newSteps = await Promise.all(
                 actions.map(async (action) => {
                     await runManager?.handleAgentAction(action);
-                    const tool = action.tool === '_Exception'
-                        ? new ExceptionTool()
-                        : toolsByName[action.tool?.toLowerCase()];
+                    const tool =
+                        action.tool === '_Exception'
+                            ? new ExceptionTool()
+                            : toolsByName[action.tool?.toLowerCase()];
                     let observation;
                     try {
                         observation = tool
-                            ? await tool.call(action.toolInput, runManager?.getChild())
+                            ? await tool.call(
+                                  action.toolInput,
+                                  runManager?.getChild(),
+                              )
                             : `${action.tool} is not a valid tool, try another one.`;
                     } catch (e) {
                         if (e instanceof ToolInputParsingException) {
                             if (this.handleParsingErrors === true) {
-                                observation = 'Invalid or incomplete tool input. Please try again.';
-                            } else if (typeof this.handleParsingErrors === 'string') {
+                                observation =
+                                    'Invalid or incomplete tool input. Please try again.';
+                            } else if (
+                                typeof this.handleParsingErrors === 'string'
+                            ) {
                                 observation = this.handleParsingErrors;
-                            } else if (typeof this.handleParsingErrors === 'function') {
+                            } else if (
+                                typeof this.handleParsingErrors === 'function'
+                            ) {
                                 observation = this.handleParsingErrors(e);
                             } else {
                                 throw e;
@@ -225,7 +255,8 @@ export class WebAgentExecutor extends BaseChain {
 
             const previousSteps = steps[steps.length - 1];
             if (previousSteps && this.updatePreviousStepMethod) {
-                steps[steps.length - 1] = this.updatePreviousStepMethod(previousSteps);
+                steps[steps.length - 1] =
+                    this.updatePreviousStepMethod(previousSteps);
             }
 
             steps.push(...newSteps);
@@ -235,7 +266,9 @@ export class WebAgentExecutor extends BaseChain {
 
             if (lastTool?.returnDirect) {
                 return getOutput({
-                    returnValues: { [this.agent.returnValues[0]]: lastStep.observation },
+                    returnValues: {
+                        [this.agent.returnValues[0]]: lastStep.observation,
+                    },
                     log: '',
                 });
             }
