@@ -9,4 +9,5 @@ export interface Input {
     openaiApiKey?: string; // We can pass openaiApiKey as env variable locally
     model?: string;
     maxIterations?: number;
+    storeHtml?: boolean;
 }
