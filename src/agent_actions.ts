@@ -209,12 +209,16 @@ export async function pushToDataset(
         const item = keyValueArrayToObject(object);
         items.push(item);
     });
-    let pageHtml;
+
+    let shrunkHtml;
+    let rawHtml;
     if (storeHtml) {
-        pageHtml = await shrinkHtmlForWebAutomation(page);
+        rawHtml = await page.content();
+        shrunkHtml = await shrinkHtmlForWebAutomation(page);
     }
     const datasetEntry = {
-        '#html': pageHtml,
+        '#rawHtml': rawHtml,
+        '#shrunkHtml': shrunkHtml,
         startUrl,
         url: page.url(),
         result: items,
