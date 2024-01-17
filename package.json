@@ -11,7 +11,7 @@
         "gpt-3-encoder": "^1.1.4",
         "langchain": "^0.0.147",
         "langsmith": "^0.0.41",
-        "puppeteer": "*",
+        "puppeteer": ">=21.3.7",
         "zod": "^3.22.2"
     },
     "devDependencies": {
